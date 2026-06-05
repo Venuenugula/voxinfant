@@ -1,0 +1,26 @@
+# ---- Core scientific / ML ----
+numpy>=1.23,<2.0
+scipy>=1.10
+scikit-learn>=1.3
+xgboost>=2.0
+pandas>=2.0
+
+# ---- Audio / DSP / features ----
+librosa>=0.10
+soundfile>=0.12
+noisereduce>=3.0
+spafe>=0.3.2          # GFCC
+
+# ---- Self-supervised embeddings (wav2vec2) ----
+torch>=2.0
+transformers>=4.35
+
+# ---- Serving ----
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9   # file uploads
+
+# ---- Config / utils ----
+pyyaml>=6.0
+joblib>=1.3
+tqdm>=4.66

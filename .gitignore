@@ -1,0 +1,42 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ---- Virtual envs (NEVER commit these) ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Notebooks & papers (core research IP — keep local, never publish) ----
+.ipynb_checkpoints/
+*.ipynb
+*.pdf
+
+# ---- Data & model artifacts (large / regenerated) ----
+data/raw/
+data/processed_audio/
+data/segments/
+data/augmented_segments/
+*.wav
+*.mp3
+features/*.npy
+features/*.pkl
+models/*.pkl
+models/*.pt
+models/*.npy
+!models/.gitkeep
+!features/.gitkeep
+
+# ---- Uploads / runtime ----
+uploads/
+*.log
+
+# ---- OS / editor ----
+.DS_Store
+.vscode/
+.idea/

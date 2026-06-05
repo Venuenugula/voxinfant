@@ -1,0 +1,45 @@
+# VoxInfant runtime configuration.
+# These values are the single source of truth for the pipeline and MUST match
+# whatever was used at training time. Changing any of them invalidates the
+# trained artifacts in models/ (the feature vector shape would drift).
+
+audio:
+  target_sr: 16000          # all audio resampled to this
+  pre_emphasis_alpha: 0.97
+  bandpass_low_hz: 200
+  bandpass_high_hz: 4000
+  bandpass_order: 5
+
+segmentation:
+  segment_duration_s: 1.25
+  overlap: 0.5
+  vad_frame_length: 2048
+  vad_hop_length: 512
+  vad_threshold: 0.02
+
+features:
+  n_mfcc: 13
+  wav2vec_model: facebook/wav2vec2-base
+  wav2vec_dim: 256          # we keep the first 256 dims of the mean-pooled embedding
+  # Expected total feature dimension. See docs/feature_contract.md.
+  # acoustic(64) + gfcc(26) + wav2vec(256) = 346
+  expected_dim: 346
+
+classes:
+  # Final 3-class taxonomy (collapsed from the raw 9 cry categories).
+  order: [burping, distress, pain]   # alphabetical == sklearn LabelEncoder order
+
+# Raw-label -> collapsed-class mapping used when building the dataset.
+class_map:
+  belly_pain: pain
+  burping: burping
+  hungry: distress
+  discomfort: distress
+  tired: distress
+  lonely: distress
+  scared: distress
+  cold_hot: distress
+
+inference:
+  # Minimum mean-probability for the top class to be reported as confident.
+  confidence_threshold: 0.50
