@@ -63,6 +63,8 @@ def main() -> None:
     ap.add_argument("--max-distress", type=int, default=None)
     ap.add_argument("--max-pain", type=int, default=None)
     ap.add_argument("--max-burping", type=int, default=None)
+    ap.add_argument("--rich", action="store_true", help="extract the richer 134-d feature set")
+    ap.add_argument("--out", default="raw_features", help="output basename under features/")
     args = ap.parse_args()
 
     os.makedirs(FEATURES_DIR, exist_ok=True)
@@ -91,22 +93,35 @@ def main() -> None:
             if cap is not None and seg_counts[label] >= cap:
                 continue
             try:
-                vec = features.build_segment_vector(seg, sr)
+                vec = features.build_segment_vector(seg, sr, rich=args.rich)
             except Exception as e:  # noqa: BLE001
                 print("segment feature error:", e)
                 continue
             X.append(vec); y.append(label); groups.append(row["file_id"])
             seg_counts[label] += 1
 
+        # Early stop: distress is processed last (see _order). Once its cap is
+        # met, every remaining file is distress and would be skipped anyway, so
+        # stop decoding them (saves a large tail of wasted DSP).
+        dcap = caps.get("distress")
+        if dcap is not None and seg_counts["distress"] >= dcap:
+            break
+
     X = np.asarray(X, dtype=np.float32)
     y = np.asarray(y)
     groups = np.asarray(groups)
     print("Feature matrix:", X.shape, "(expected dim:", CFG.expected_dim, ")")
 
-    np.save(os.path.join(FEATURES_DIR, "raw_features.npy"), X)
-    np.save(os.path.join(FEATURES_DIR, "labels.npy"), y)
-    np.save(os.path.join(FEATURES_DIR, "groups.npy"), groups)
-    print("Saved features to", FEATURES_DIR)
+    # Default basename keeps the legacy file names; a custom --out gets suffixed
+    # label/group files so experiments never clobber the deployed 62-d arrays.
+    if args.out == "raw_features":
+        fn, ln, gn = "raw_features.npy", "labels.npy", "groups.npy"
+    else:
+        fn, ln, gn = f"{args.out}.npy", f"{args.out}_labels.npy", f"{args.out}_groups.npy"
+    np.save(os.path.join(FEATURES_DIR, fn), X)
+    np.save(os.path.join(FEATURES_DIR, ln), y)
+    np.save(os.path.join(FEATURES_DIR, gn), groups)
+    print("Saved features to", FEATURES_DIR, "as", fn, ln, gn)
 
 
 if __name__ == "__main__":
