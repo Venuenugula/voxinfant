@@ -1,0 +1,9 @@
+# One-click deploy on Render (https://render.com) — builds the Docker image in
+# the cloud, so no local disk/build is needed.
+services:
+  - type: web
+    name: voxinfant
+    runtime: docker
+    plan: free            # free tier is fine for a demo
+    healthCheckPath: /health
+    autoDeploy: true      # redeploy on every push to the connected branch
