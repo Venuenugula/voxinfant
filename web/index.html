@@ -118,9 +118,9 @@
 <script>
 // --- Backend location ---------------------------------------------------
 // Empty = same origin (when the backend also serves this page, e.g. HF Spaces).
-// Hosting separately (e.g. Vercel)? Set DEFAULT_API_BASE below, OR visit once with
-// ?api=https://your-space.hf.space  (remembered in localStorage).
-const DEFAULT_API_BASE = "";
+// Points at the deployed Hugging Face Space backend so the Vercel-hosted UI works
+// out of the box. Override per-visit with ?api=https://other-backend (localStorage).
+const DEFAULT_API_BASE = "https://venuenugula-voxinfant.hf.space";
 const _p = new URLSearchParams(location.search);
 if (_p.get('api')) localStorage.setItem('voxinfant_api', _p.get('api').replace(/\/$/, ''));
 const API_BASE = (localStorage.getItem('voxinfant_api') || DEFAULT_API_BASE).replace(/\/$/, '');
