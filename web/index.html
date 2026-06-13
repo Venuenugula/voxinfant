@@ -3,114 +3,135 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VoxInfant — Infant Cry Analysis</title>
+<title>VoxInfant — Understand your baby's cry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1220; --panel: #181c2e; --panel2: #1f2438; --txt: #e7e9f3;
-    --muted: #9aa0bd; --accent: #7c8cff; --pain: #ff6b6b; --distress: #ffb454; --burping: #4dd4ac;
-    --line: #2a3050;
+    --cream: #fdf6ef; --cream2: #fbeee3; --card: #ffffff;
+    --ink: #4a3f38; --muted: #a99c92; --line: #f0e4d8;
+    --pain: #f4756a; --distress: #f6a94e; --burping: #56c79a;
+    --accent: #f48a6a; --accent-dark: #e9744f;
+    --shadow: 0 14px 40px -18px rgba(120,80,60,.35);
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: radial-gradient(1200px 600px at 70% -10%, #20264a 0%, var(--bg) 55%);
-    color: var(--txt); min-height: 100vh; line-height: 1.5;
+    margin: 0; font-family: "Nunito", system-ui, sans-serif; color: var(--ink);
+    background: linear-gradient(170deg, var(--cream) 0%, var(--cream2) 100%);
+    min-height: 100vh; line-height: 1.55; -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
-  header { text-align: center; margin-bottom: 28px; }
-  .logo { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
-  .logo span { color: var(--accent); }
-  .sub { color: var(--muted); margin-top: 6px; font-size: 0.98rem; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 20px 72px; }
+  header { text-align: center; margin-bottom: 26px; }
+  .logo { font-size: 2.1rem; font-weight: 900; letter-spacing: -0.5px; }
+  .logo .emoji { font-size: 1.9rem; }
+  .logo span { color: var(--accent-dark); }
+  .tagline { color: var(--muted); margin-top: 4px; font-size: 1.02rem; font-weight: 600; }
   .badge {
-    display: inline-block; margin-top: 12px; font-size: 0.72rem; font-weight: 600;
-    color: var(--distress); border: 1px solid var(--distress); border-radius: 999px;
-    padding: 3px 10px; opacity: 0.9;
+    display: inline-block; margin-top: 14px; font-size: 0.72rem; font-weight: 800;
+    color: #b07b3c; background: #fdeccf; border-radius: 999px; padding: 5px 13px;
+    letter-spacing: .3px;
   }
   .card {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
-    padding: 22px; margin-bottom: 20px;
+    background: var(--card); border-radius: 26px; padding: 24px; margin-bottom: 20px;
+    box-shadow: var(--shadow); border: 1px solid var(--line);
   }
   .drop {
-    border: 2px dashed var(--line); border-radius: 14px; padding: 34px 20px; text-align: center;
-    cursor: pointer; transition: border-color .15s, background .15s;
+    border: 2.5px dashed #f0cdb8; border-radius: 22px; padding: 38px 20px; text-align: center;
+    cursor: pointer; transition: all .18s; background: #fffaf6;
   }
-  .drop:hover, .drop.over { border-color: var(--accent); background: #1c2138; }
-  .drop .big { font-size: 1.05rem; font-weight: 600; }
-  .drop .small { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+  .drop:hover, .drop.over { border-color: var(--accent); background: #fff3ec; transform: translateY(-2px); }
+  .drop .ic { font-size: 2.2rem; display: block; margin-bottom: 8px; }
+  .drop .big { font-size: 1.1rem; font-weight: 800; }
+  .drop .small { color: var(--muted); font-size: 0.9rem; margin-top: 4px; font-weight: 600; }
   #file { display: none; }
-  canvas { width: 100%; height: 90px; display: block; margin-top: 16px;
-           background: var(--panel2); border-radius: 10px; }
+  canvas { width: 100%; height: 80px; display: block; margin-top: 18px;
+           background: #fff7f1; border-radius: 16px; }
   audio { width: 100%; margin-top: 14px; }
   button.analyze {
-    width: 100%; margin-top: 16px; padding: 13px; font-size: 1rem; font-weight: 700;
-    color: #0f1220; background: var(--accent); border: none; border-radius: 10px; cursor: pointer;
+    width: 100%; margin-top: 18px; padding: 15px; font-size: 1.05rem; font-weight: 800;
+    font-family: inherit; color: #fff; border: none; border-radius: 16px; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    box-shadow: 0 10px 22px -10px rgba(233,116,79,.7); transition: transform .12s, opacity .12s;
   }
-  button.analyze:disabled { opacity: 0.5; cursor: not-allowed; }
-  .result-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-  .pred-label { font-size: 1.7rem; font-weight: 800; text-transform: capitalize; }
-  .pred-conf { font-size: 1.2rem; font-weight: 700; color: var(--muted); }
+  button.analyze:hover:not(:disabled) { transform: translateY(-2px); }
+  button.analyze:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+  .result-emoji { font-size: 2.6rem; text-align: center; }
+  .looks { text-align: center; color: var(--muted); font-weight: 700; margin-top: 4px; }
+  .pred-label { text-align: center; font-size: 2.1rem; font-weight: 900; text-transform: capitalize; margin-top: 2px; }
+  .pred-conf { text-align: center; font-weight: 800; color: var(--muted); margin-bottom: 8px; }
   .bar-row { margin-top: 14px; }
-  .bar-row .lab { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px; }
-  .bar { height: 10px; border-radius: 999px; background: var(--panel2); overflow: hidden; }
-  .bar > i { display: block; height: 100%; border-radius: 999px; transition: width .5s ease; }
-  .meta { color: var(--muted); font-size: 0.82rem; margin-top: 16px; }
-  .disclaimer { color: var(--muted); font-size: 0.78rem; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .bar-row .lab { display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 700; margin-bottom: 5px; }
+  .bar { height: 13px; border-radius: 999px; background: #f3ece4; overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 999px; width: 0; transition: width .7s cubic-bezier(.3,1.2,.5,1); }
+  .meta { color: var(--muted); font-size: 0.85rem; margin-top: 18px; font-weight: 600; text-align: center; }
+  .disclaimer { color: var(--muted); font-size: 0.8rem; margin-top: 12px; border-top: 1px solid var(--line);
+                padding-top: 12px; text-align: center; }
   .hidden { display: none; }
-  .spinner { width: 22px; height: 22px; border: 3px solid var(--line); border-top-color: var(--accent);
-             border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+  .spinner { width: 30px; height: 30px; border: 4px solid #f3e6da; border-top-color: var(--accent);
+             border-radius: 50%; animation: spin .8s linear infinite; margin: 4px auto 0; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .err { color: var(--pain); font-size: 0.9rem; margin-top: 10px; }
+  .err { color: var(--pain); font-weight: 700; font-size: 0.92rem; margin-top: 12px; text-align: center; }
+  .footer { text-align: center; color: var(--muted); font-size: 0.8rem; font-weight: 600; margin-top: 8px; }
   .cap { text-transform: capitalize; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="logo">Vox<span>Infant</span></div>
-    <div class="sub">AI-powered infant cry analysis — pain · burping · distress</div>
-    <div class="badge">Research preview · not a medical device</div>
+    <div class="logo"><span class="emoji">👶</span> Vox<span>Infant</span></div>
+    <div class="tagline">Understand what your baby might be telling you</div>
+    <div class="badge">EXPERIMENTAL · NOT A MEDICAL DEVICE</div>
   </header>
 
   <div class="card">
     <label class="drop" id="drop" for="file">
-      <div class="big">Upload a cry recording</div>
-      <div class="small">Click or drag a .wav / .mp3 file here</div>
+      <span class="ic">🎙️</span>
+      <div class="big">Add a cry recording</div>
+      <div class="small">Tap to choose, or drop a .wav / .mp3 here</div>
     </label>
     <input type="file" id="file" accept=".wav,.mp3,audio/*" />
     <canvas id="wave" class="hidden"></canvas>
     <audio id="player" class="hidden" controls></audio>
-    <button class="analyze" id="analyze" disabled>Analyze cry</button>
+    <button class="analyze" id="analyze" disabled>Listen to the cry 💛</button>
     <div class="err hidden" id="err"></div>
   </div>
 
   <div class="card hidden" id="loading">
     <div class="spinner"></div>
-    <div class="meta" style="text-align:center">Analyzing… (DSP → segmentation → features → ensemble)</div>
+    <div class="meta">Listening carefully… analyzing the sound</div>
   </div>
 
   <div class="card hidden" id="result">
-    <div class="result-head">
-      <div class="pred-label" id="predLabel">—</div>
-      <div class="pred-conf" id="predConf">—</div>
-    </div>
+    <div class="result-emoji" id="resEmoji">🍼</div>
+    <div class="looks">It sounds most like</div>
+    <div class="pred-label" id="predLabel">—</div>
+    <div class="pred-conf" id="predConf">—</div>
     <div id="bars"></div>
     <div class="meta" id="segMeta"></div>
     <div class="disclaimer" id="disc"></div>
   </div>
+
+  <div class="footer">VoxInfant · acoustic cry analysis · for guidance only, always trust your instincts and a doctor</div>
 </div>
 
 <script>
 // --- Backend location ---------------------------------------------------
-// Empty = same origin (when the FastAPI backend also serves this page, e.g. on
-// Hugging Face Spaces). When hosting this page separately (e.g. Vercel), set
-// DEFAULT_API_BASE to your backend URL, OR visit ?api=https://your-space.hf.space
-// once (it is remembered in localStorage).
+// Empty = same origin (when the backend also serves this page, e.g. HF Spaces).
+// Hosting separately (e.g. Vercel)? Set DEFAULT_API_BASE below, OR visit once with
+// ?api=https://your-space.hf.space  (remembered in localStorage).
 const DEFAULT_API_BASE = "";
 const _p = new URLSearchParams(location.search);
 if (_p.get('api')) localStorage.setItem('voxinfant_api', _p.get('api').replace(/\/$/, ''));
 const API_BASE = (localStorage.getItem('voxinfant_api') || DEFAULT_API_BASE).replace(/\/$/, '');
 
 const COLORS = { pain: getCss('--pain'), distress: getCss('--distress'), burping: getCss('--burping') };
+const EMOJI  = { pain: "😣", distress: "😢", burping: "🍼" };
+const FRIENDLY = {
+  pain:     "Possible discomfort or pain",
+  distress: "General distress (hungry, tired, uncomfortable…)",
+  burping:  "Might need to burp"
+};
 function getCss(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
 const fileInput = document.getElementById('file');
@@ -133,10 +154,9 @@ function handleFile(f) {
   currentFile = f;
   hide('err'); hide('result');
   drop.querySelector('.big').textContent = f.name;
-  drop.querySelector('.small').textContent = (f.size/1024).toFixed(0) + ' KB';
+  drop.querySelector('.small').textContent = (f.size/1024).toFixed(0) + ' KB · tap to change';
   analyzeBtn.disabled = false;
-  const url = URL.createObjectURL(f);
-  player.src = url; player.classList.remove('hidden');
+  player.src = URL.createObjectURL(f); player.classList.remove('hidden');
   drawWaveform(f);
 }
 
@@ -147,15 +167,17 @@ async function drawWaveform(f) {
     const data = buf.getChannelData(0);
     canvas.classList.remove('hidden');
     const c = canvas.getContext('2d');
-    const W = canvas.width = canvas.offsetWidth * 2, H = canvas.height = 180;
+    const W = canvas.width = canvas.offsetWidth * 2, H = canvas.height = 160;
     c.clearRect(0,0,W,H);
-    c.fillStyle = getCss('--accent');
-    const step = Math.floor(data.length / W);
+    const grad = c.createLinearGradient(0,0,W,0);
+    grad.addColorStop(0, getCss('--accent')); grad.addColorStop(1, getCss('--distress'));
+    c.fillStyle = grad;
+    const step = Math.floor(data.length / W) || 1;
     for (let x = 0; x < W; x++) {
       let min = 1, max = -1;
-      for (let i = 0; i < step; i++) { const v = data[x*step+i]; if (v<min) min=v; if (v>max) max=v; }
+      for (let i = 0; i < step; i++) { const v = data[x*step+i]||0; if (v<min) min=v; if (v>max) max=v; }
       const y1 = (1+min)*H/2, y2 = (1+max)*H/2;
-      c.fillRect(x, y1, 1, Math.max(1, y2-y1));
+      c.fillRect(x, y1, 1.5, Math.max(2, y2-y1));
     }
   } catch (e) { canvas.classList.add('hidden'); }
 }
@@ -167,7 +189,7 @@ analyzeBtn.addEventListener('click', async () => {
     const fd = new FormData(); fd.append('file', currentFile);
     const res = await fetch(`${API_BASE}/predict`, { method: 'POST', body: fd });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Prediction failed');
+    if (!res.ok) throw new Error(data.detail || 'Could not analyze that file.');
     renderResult(data);
   } catch (e) {
     showErr(e.message);
@@ -177,20 +199,25 @@ analyzeBtn.addEventListener('click', async () => {
 });
 
 function renderResult(d) {
-  document.getElementById('predLabel').textContent = d.prediction;
-  document.getElementById('predLabel').style.color = COLORS[d.prediction] || getCss('--txt');
-  document.getElementById('predConf').textContent = (d.confidence*100).toFixed(0) + '%'
-      + (d.confident ? '' : ' (low confidence)');
+  document.getElementById('resEmoji').textContent = EMOJI[d.prediction] || "🍼";
+  const lbl = document.getElementById('predLabel');
+  lbl.textContent = FRIENDLY[d.prediction] || d.prediction;
+  lbl.style.color = COLORS[d.prediction] || getCss('--ink');
+  document.getElementById('predConf').textContent =
+    (d.confidence*100).toFixed(0) + '% match' + (d.confident ? '' : ' · not very sure');
   const order = Object.entries(d.probabilities).sort((a,b)=>b[1]-a[1]);
   document.getElementById('bars').innerHTML = order.map(([k,v]) => `
     <div class="bar-row">
-      <div class="lab"><span class="cap">${k}</span><span>${(v*100).toFixed(1)}%</span></div>
-      <div class="bar"><i style="width:${(v*100).toFixed(1)}%;background:${COLORS[k]||'#888'}"></i></div>
+      <div class="lab"><span class="cap">${k}</span><span>${(v*100).toFixed(0)}%</span></div>
+      <div class="bar"><i data-w="${(v*100).toFixed(1)}" style="background:${COLORS[k]||'#ccc'}"></i></div>
     </div>`).join('');
   document.getElementById('segMeta').textContent =
-    `${d.segments_analyzed} segment(s) analyzed · probabilities averaged across segments`;
+    `Averaged across ${d.segments_analyzed} short segment${d.segments_analyzed==1?'':'s'} of the cry`;
   document.getElementById('disc').textContent = d.disclaimer || '';
   show('result');
+  // animate bars after paint
+  requestAnimationFrame(() => document.querySelectorAll('.bar > i')
+    .forEach(el => el.style.width = el.dataset.w + '%'));
 }
 
 function show(id){ document.getElementById(id).classList.remove('hidden'); }
