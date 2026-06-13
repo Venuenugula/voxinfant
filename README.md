@@ -1,3 +1,15 @@
+---
+title: VoxInfant
+emoji: 👶
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
+<!-- The YAML block above configures a Hugging Face Docker Space; GitHub ignores it. -->
+
 # VoxInfant
 
 Infant cry analysis pipeline: DSP front-end → segment-level acoustic + GFCC
