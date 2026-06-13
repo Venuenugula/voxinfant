@@ -11,9 +11,8 @@ soundfile>=0.12
 noisereduce>=3.0
 spafe>=0.3.2          # GFCC
 
-# ---- Self-supervised embeddings (wav2vec2) ----
-torch>=2.0
-transformers>=4.35
+# Note: the deployable model uses acoustic + GFCC only. torch/transformers are
+# intentionally NOT required -- wav2vec was dropped from the product pipeline.
 
 # ---- Serving ----
 fastapi>=0.110

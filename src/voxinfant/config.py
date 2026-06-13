@@ -36,8 +36,6 @@ class Config:
     vad_hop_length: int
     vad_threshold: float
     n_mfcc: int
-    wav2vec_model: str
-    wav2vec_dim: int
     expected_dim: int
     class_order: List[str]
     class_map: Dict[str, str]
@@ -69,8 +67,6 @@ def get_config(path: str = CONFIG_PATH) -> Config:
         vad_hop_length=s["vad_hop_length"],
         vad_threshold=s["vad_threshold"],
         n_mfcc=fe["n_mfcc"],
-        wav2vec_model=fe["wav2vec_model"],
-        wav2vec_dim=fe["wav2vec_dim"],
         expected_dim=fe["expected_dim"],
         class_order=list(c["order"]),
         class_map=dict(raw["class_map"]),

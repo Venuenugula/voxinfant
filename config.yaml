@@ -19,11 +19,11 @@ segmentation:
 
 features:
   n_mfcc: 13
-  wav2vec_model: facebook/wav2vec2-base
-  wav2vec_dim: 256          # we keep the first 256 dims of the mean-pooled embedding
-  # Expected total feature dimension. See docs/feature_contract.md.
-  # acoustic(64) + gfcc(26) + wav2vec(256) = 346
-  expected_dim: 346
+  # Deployable model uses the reproducible feature set only (no wav2vec/SSL).
+  # acoustic(36) + gfcc(26) = 62. See docs/feature_contract.md.
+  # wav2vec was dropped from the product: it does not reproduce outside Colab and
+  # did not improve accuracy (0.52 without vs 0.47 with).
+  expected_dim: 62
 
 classes:
   # Final 3-class taxonomy (collapsed from the raw 9 cry categories).

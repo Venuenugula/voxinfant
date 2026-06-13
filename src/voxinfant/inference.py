@@ -2,8 +2,8 @@
 
 Pipeline (mirrors training so the feature contract is identical):
 
-    wav -> DSP -> file-level wav2vec embedding -> VAD -> segment
-        -> per-segment [acoustic|gfcc|wav2vec] vectors
+    wav -> DSP -> VAD -> segment
+        -> per-segment [acoustic|gfcc] vectors (62 dims)
         -> StandardScaler -> model.predict_proba per segment
         -> average probabilities across segments -> final class + alternatives
 
@@ -99,22 +99,19 @@ class CryAnalyzer:
         if y is None:
             raise ValueError(f"Could not process audio: {wav_path}")
 
-        # 2. File-level wav2vec embedding (shared by all segments).
-        file_emb = features.file_wav2vec(y, sr)
-
-        # 3. VAD + segmentation.
+        # 2. VAD + segmentation.
         y_voiced = segmentation.apply_vad(y, sr)
         segments = segmentation.segment_audio(y_voiced, sr)
         if not segments:
             # Fall back to a single window if VAD removed everything.
             segments = [y[: int(sr * CFG.segment_duration_s)]]
 
-        # 4. Per-segment feature vectors.
+        # 3. Per-segment feature vectors (acoustic + gfcc).
         X = np.vstack([
-            features.build_segment_vector(seg, sr, file_emb) for seg in segments
+            features.build_segment_vector(seg, sr) for seg in segments
         ])
 
-        # 5. Scale + predict, then average probabilities across segments.
+        # 4. Scale + predict, then average probabilities across segments.
         X_scaled = self.scaler.transform(X)
         proba = self.model.predict_proba(X_scaled)          # (n_segments, n_classes)
         mean_proba = proba.mean(axis=0)

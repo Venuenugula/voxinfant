@@ -1,11 +1,17 @@
 # VoxInfant
 
-Infant cry analysis pipeline: DSP front-end → segment-level acoustic + GFCC +
-wav2vec2 features → XGBoost/MLP soft-vote ensemble. Classifies a cry into
+Infant cry analysis pipeline: DSP front-end → segment-level acoustic + GFCC
+features → XGBoost/MLP soft-vote ensemble. Classifies a cry into
 **`pain` / `burping` / `distress`**.
 
-> ⚠️ **Research preview, not a medical device.** Current macro-F1 ≈ 0.54 over 3
-> coarse classes. Do not use for clinical decisions.
+> ⚠️ **Research preview, not a medical device.** GroupKFold macro-F1 ≈ 0.56 over
+> 3 coarse classes. Do not use for clinical decisions.
+
+The deployable model uses **reproducible features only** (62-d acoustic + GFCC) —
+no wav2vec/torch. This was deliberate: Colab-computed features (wav2vec, GFCC) do
+not reproduce at inference and caused predictions to collapse. Training now
+re-extracts from **raw audio** with the exact inference code, so train == inference.
+See [docs/experiments.md](docs/experiments.md).
 
 ## Layout
 ```

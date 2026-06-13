@@ -7,8 +7,6 @@
  DSP  ──────────────  dsp.process_audio
    normalize → pre-emphasis(0.97) → bandpass(200–4000 Hz) → noise reduce
         │
-        ├─────────────► wav2vec2 file embedding (256-d)  ── features.file_wav2vec
-        │
         ▼
  VAD (RMS) ─────────  segmentation.apply_vad
         │
@@ -17,7 +15,7 @@
         │
         ▼
  per-segment features  ── features.build_segment_vector
-   [ acoustic(64) | gfcc(26) | wav2vec(256) ] = 346
+   [ acoustic(36) | gfcc(26) ] = 62      (reproducible; no torch)
         │
         ▼
  StandardScaler  ──  models/scaler.pkl
@@ -28,6 +26,9 @@
         ▼
  mean probability over segments → label + alternatives  ── inference.CryAnalyzer
 ```
+
+> wav2vec/SSL was dropped from the deployable model (not reproducible across
+> environments, no accuracy gain). See docs/feature_contract.md.
 
 ## Modules (`src/voxinfant/`)
 | Module | Responsibility |

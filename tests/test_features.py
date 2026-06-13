@@ -14,7 +14,7 @@ from voxinfant import features as F
 
 def test_config_expected_dim():
     cfg = get_config()
-    assert cfg.expected_dim == F.ACOUSTIC_DIM + F.GFCC_DIM + F.WAV2VEC_DIM == 346
+    assert cfg.expected_dim == F.ACOUSTIC_DIM + F.GFCC_DIM == 62
 
 
 def test_class_order_matches_label_encoder_convention():
@@ -45,3 +45,10 @@ def test_gfcc_dim_on_synthetic_signal():
     y = np.sin(2 * np.pi * 220 * np.arange(sr) / sr).astype(np.float32)
     feat = F.extract_gfcc_features(y, sr)
     assert feat.shape == (F.GFCC_DIM,)
+
+
+@pytest.mark.skipif(not (_have("librosa") and _have("spafe")), reason="deps missing")
+def test_segment_vector_is_62():
+    sr = 16000
+    y = np.sin(2 * np.pi * 220 * np.arange(sr) / sr).astype(np.float32)
+    assert F.build_segment_vector(y, sr).shape == (62,)

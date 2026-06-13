@@ -18,17 +18,19 @@ ENV/
 *.pdf
 
 # ---- Data & model artifacts (large / regenerated) ----
-data/raw/
-data/processed_audio/
-data/segments/
-data/augmented_segments/
+data/
 *.wav
 *.mp3
+*.csv
+features/**/*.npy
+features/**/*.pkl
 features/*.npy
 features/*.pkl
+features/_colab_backup/
 models/*.pkl
 models/*.pt
 models/*.npy
+models/*.json
 !models/.gitkeep
 !features/.gitkeep
 

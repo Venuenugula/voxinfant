@@ -68,6 +68,13 @@ def main() -> None:
     os.makedirs(FEATURES_DIR, exist_ok=True)
     df = build_metadata()
 
+    # Process minority classes first (so caps never starve pain/burping), and
+    # shuffle within so a distress cap samples across ALL distress subtypes
+    # (cold_hot/discomfort/hungry/lonely/scared/tired), not just the first folders.
+    df = df.sample(frac=1.0, random_state=42).reset_index(drop=True)
+    df["_order"] = df["label"].map({"pain": 0, "burping": 1, "distress": 2}).fillna(3)
+    df = df.sort_values("_order", kind="stable").reset_index(drop=True)
+
     X, y, groups = [], [], []
     caps = {"distress": args.max_distress, "pain": args.max_pain, "burping": args.max_burping}
     seg_counts = {k: 0 for k in caps}
@@ -77,9 +84,6 @@ def main() -> None:
         if y_audio is None:
             continue
 
-        # File-level wav2vec embedding (shared across this file's segments).
-        file_emb = features.file_wav2vec(y_audio, sr)
-
         y_voiced = segmentation.apply_vad(y_audio, sr)
         for seg in segmentation.segment_audio(y_voiced, sr):
             label = row["label"]
@@ -87,7 +91,7 @@ def main() -> None:
             if cap is not None and seg_counts[label] >= cap:
                 continue
             try:
-                vec = features.build_segment_vector(seg, sr, file_emb)
+                vec = features.build_segment_vector(seg, sr)
             except Exception as e:  # noqa: BLE001
                 print("segment feature error:", e)
                 continue

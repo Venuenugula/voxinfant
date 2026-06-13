@@ -25,7 +25,7 @@ from voxinfant.inference import CryAnalyzer
 
 app = FastAPI(
     title="VoxInfant API",
-    version="0.1.0",
+    version="0.2.0",
     description="Experimental infant-cry analysis. Research preview — not a medical device.",
 )
 
