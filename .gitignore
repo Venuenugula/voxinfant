@@ -33,6 +33,10 @@ models/*.npy
 models/*.json
 !models/.gitkeep
 !features/.gitkeep
+# Deployable trained artifacts (small ~2.3MB) are committed so cloud builds work.
+!models/voxinfant_ensemble.pkl
+!models/scaler.pkl
+!models/label_classes.json
 
 # ---- Uploads / runtime ----
 uploads/

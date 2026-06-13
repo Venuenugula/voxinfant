@@ -1,0 +1,17 @@
+# Keep the image small: ship code + UI + trained model only.
+.git/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Large / regenerable data (the model in models/ is intentionally KEPT).
+data/
+features/
+docs/
+tests/
+*.ipynb
+*.pdf
+*.zip
+.ipynb_checkpoints/

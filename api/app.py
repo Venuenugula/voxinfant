@@ -19,9 +19,12 @@ import tempfile
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
-from voxinfant.config import MODELS_DIR
+from voxinfant.config import PROJECT_ROOT, MODELS_DIR
 from voxinfant.inference import CryAnalyzer
+
+WEB_DIR = os.path.join(PROJECT_ROOT, "web")
 
 app = FastAPI(
     title="VoxInfant API",
@@ -49,6 +52,11 @@ def _get_analyzer() -> CryAnalyzer:
         except FileNotFoundError as e:
             raise HTTPException(status_code=503, detail=str(e))
     return _analyzer
+
+
+@app.get("/")
+def index() -> FileResponse:
+    return FileResponse(os.path.join(WEB_DIR, "index.html"))
 
 
 @app.get("/health")
